@@ -4,8 +4,7 @@ import Home from "./Home";
 import LoginBanner from "./LoginBanner";
 import { ScrollView } from "react-native-gesture-handler";
 
-export default class Login extends React.Component {
-
+export default class Login extends React.Component {  
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -19,6 +18,6 @@ export default class Login extends React.Component {
 const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   }
 });

@@ -6,7 +6,6 @@ import Appetizer from "./components/Screens/Appetizer";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import MainCourse from "./components/Screens/MainCourse";
 import Drinks from "./components/Screens/Drinks";
-import Body from "./components/Screens/Body";
 
 export default class App extends React.Component {
   render() {
@@ -23,8 +22,6 @@ const MyApp = createStackNavigator({
   Appetizer: { screen: Appetizer },
   Dish: { screen: MainCourse },
   Drinks: { screen: Drinks },
-  Body: { screen: Body }
-
 });
 const AppNav = createAppContainer(MyApp);
 
