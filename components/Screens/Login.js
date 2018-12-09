@@ -4,22 +4,11 @@ import { Container, Content, Header, Form, Input, Item, Button} from "native-bas
 import Home from "./Home";
 import LoginBanner from "./LoginBanner";
 import { ScrollView } from "react-native-gesture-handler";
-import * as firebase from 'firebase'
-
-const config = {
-    apiKey: "AIzaSyBwWm-UvF-NjqrGc4hahB-cXp_CdB-tC2I",
-    authDomain: "restaurant-app-42260.firebaseapp.com",
-    databaseURL: "https://restaurant-app-42260.firebaseio.com",
-    projectId: "restaurant-app-42260",
-    storageBucket: "restaurant-app-42260.appspot.com",
-    messagingSenderId: "513052896710"
-  };
-
-  firebase.initializeApp(config);
+import {firebaseAuth} from './Firebase';
+import Appetizer from "./Appetizer";
 
 export default class Login extends React.Component {  
-  state = {email: "", password: ""};
-
+  state = {email: "", password: "", data: []};
   
   //Method to sign user with email and password
   signUpUser = (email, password) => {
@@ -28,7 +17,7 @@ export default class Login extends React.Component {
         alert("Please enter at least 6 character")
         return;
       }
-        firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user){
+        firebaseAuth().createUserWithEmailAndPassword(email, password).then(function(user){
         Alert.alert("Successfully signed up!")
         })
     }
@@ -40,13 +29,14 @@ export default class Login extends React.Component {
   //Method to log user with email and password
   loginUser = (email, password) => {
     try{
-      firebase.auth().signInWithEmailAndPassword(email, password)
+      firebaseAuth().signInWithEmailAndPassword(email, password)
       .then(() => this.props.navigation.navigate('Home'))
     }
     catch(error){
       console.log(error.toString())
     }
   };
+  
   render() {
     const { navigate } = this.props.navigation;
     return (

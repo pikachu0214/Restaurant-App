@@ -1,53 +1,60 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, FlatList } from "react-native";
+import { StyleSheet, Text, View, Alert, ListView, TouchableHighlight } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Header from "./Contents/Header";
-import * as firebase from "firebase";
+import { firebasedb } from "./Firebase";
+import Toolbar from "./Toolbar";
+
+const styles = require("./Style");
 export default class Appetizer extends Component {
-  state = { data: [] };
-  static navigationOptions = { title: "Appetizer" };
-
-  componentWillMount() {
-    
+  constructor(props) {
+    super(props);
+    this.itemsRef = this.getRef().child("appetizers");
+    let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2 });
+    this.state = { itemDataSource: ds };
   }
-
-  listSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 5,
-          width: "80%",
-          backgroundColor: "#fff",
-          marginLeft: "10%"
-        }}
-      />
-    );
-  };
-
-  render() {
-    return (
-      <ScrollView style={styles.container}>
-        <Header />
-        <View>
-          <FlatList
-            style={{ marginLeft: "5%" }}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.listcontainer}>
-                <Text style={{ fontSize: 18, color: "blue" }}>
-                  {item.field}, {item.value}{" "}
-                </Text>
-              </View>
-            )}
-            data={this.state.data}
-            ItemSeparatorComponent={this.listSeparator}
-          />
+  static navigationOptions = { title: "Home" };
+  componentDidMount() {
+    this.getItems(this.itemsRef);
+  }
+  getRef = () => {
+    return firebasedb.ref();
+  }
+  getItems = (itemsRef) => {
+    //let items = [{Name: "Sandwice", Price: "4"}, {Name: "Eggroll", Price: "4"}];
+    itemsRef.on("value", (snap) => {
+      let items = [];
+      snap.forEach((child) => {
+        items.push({
+          _key: child.key,
+          name: child.val().name,
+          price: child.val().price,
+        });
+      });
+      this.setState({
+        itemDataSource: this.state.itemDataSource.cloneWithRows(items)
+      });
+    });
+  }
+  pressRow = (item) => {
+    console.log(item);
+  }
+  renderRow= (item) => {
+    return <TouchableHighlight onPress={() => {
+          this.pressRow(item);
+        }}>
+        <View style={styles.li}>
+          <Text styles={styles.liText}>
+            {item.name} {item.price}
+          </Text>
         </View>
-      </ScrollView>
-    );
+      </TouchableHighlight>;
+  }
+  render() {
+    return <View style={styles.container}>
+        <Toolbar title="Appetizer" />
+        <ListView dataSource={this.state.itemDataSource}
+        renderRow={this.renderRow} />
+      </View>;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {}
-});
