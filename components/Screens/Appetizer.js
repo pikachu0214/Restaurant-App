@@ -1,60 +1,152 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Alert, ListView, TouchableHighlight } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import Header from "./Contents/Header";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  ListView,
+  TouchableHighlight,
+  Modal,
+  TextInput
+} from "react-native";
+import { Button } from "native-base";
 import { firebasedb } from "./Firebase";
 import Toolbar from "./Toolbar";
-
+import Addbutton from "./Addbutton";
 const styles = require("./Style");
 export default class Appetizer extends Component {
+  static navigationOptions = { title: "Home" };
+
   constructor(props) {
     super(props);
     this.itemsRef = this.getRef().child("appetizers");
-    let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2 });
-    this.state = { itemDataSource: ds };
+    let ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    });
+    this.state = {
+      itemDataSource: ds,
+      modalVisible: false,
+      name: "",
+      price: ""
+    };
   }
-  static navigationOptions = { title: "Home" };
+  setModalVisible(visible) {
+    this.setState({ modalVisible: visible });
+  }
   componentDidMount() {
     this.getItems(this.itemsRef);
   }
   getRef = () => {
     return firebasedb.ref();
-  }
-  getItems = (itemsRef) => {
-    //let items = [{Name: "Sandwice", Price: "4"}, {Name: "Eggroll", Price: "4"}];
-    itemsRef.on("value", (snap) => {
+  };
+  getItems = itemsRef => {
+    itemsRef.on("value", snap => {
       let items = [];
-      snap.forEach((child) => {
+      snap.forEach(child => {
         items.push({
           _key: child.key,
           name: child.val().name,
-          price: child.val().price,
+          price: child.val().price
         });
       });
       this.setState({
         itemDataSource: this.state.itemDataSource.cloneWithRows(items)
       });
     });
-  }
+  };
   pressRow = (item) => {
-    console.log(item);
-  }
-  renderRow= (item) => {
-    return <TouchableHighlight onPress={() => {
+    firebasedb.ref().child("appetizers").remove();
+  };
+  renderRow = item => {
+    return (
+      <TouchableHighlight
+        onPress={() => {
           this.pressRow(item);
-        }}>
+        }}
+      >
         <View style={styles.li}>
           <Text styles={styles.liText}>
             {item.name} {item.price}
           </Text>
         </View>
-      </TouchableHighlight>;
-  }
+      </TouchableHighlight>
+    );
+  };
+  saveData = () => {
+    this.setModalVisible(true);
+  };
   render() {
-    return <View style={styles.container}>
+    return (
+      <View style={styles.container}>
         <Toolbar title="Appetizer" />
-        <ListView dataSource={this.state.itemDataSource}
-        renderRow={this.renderRow} />
-      </View>;
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {}}
+        >
+          <View style={{ marginTop: 22 }}>
+            <View>
+              <Toolbar title="Add Appetizer" />
+              <TextInput
+                style={{ paddingTop: 5, marginTop: 20, marginBottom: 20 }}
+                value={this.state.name}
+                placeholder="Name"
+                onChangeText={name => this.setState({ name })}
+              />
+              <TextInput
+                style={{ paddingTop: 5, marginTop: 20, marginBottom: 20 }}
+                value={this.state.price}
+                placeholder="price"
+                onChangeText={price => this.setState({ price })}
+              />
+              <TouchableHighlight
+                onPress={() => {
+                  this.itemsRef.push({
+                    name: this.state.name,
+                    price: this.state.price + "£"
+                  });
+                  this.setModalVisible(!this.state.modalVisible);
+                }}
+              >
+                <Text
+                  style={{
+                    paddingTop: 5,
+                    marginTop: 20,
+                    marginBottom: 20,
+                    color: "green"
+                  }}
+                >
+                  Save Appetizer
+                </Text>
+              </TouchableHighlight>
+
+              <TouchableHighlight
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}
+              >
+                <Text
+                  style={{
+                    paddingTop: 5,
+                    marginTop: 20,
+                    marginBottom: 20,
+                    color: "blue"
+                  }}
+                >
+                  Cancel
+                </Text>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </Modal>
+
+        <ListView
+          dataSource={this.state.itemDataSource}
+          renderRow={this.renderRow}
+        />
+        <Addbutton onPress={this.saveData} title="Add" />
+      </View>
+    );
   }
 }

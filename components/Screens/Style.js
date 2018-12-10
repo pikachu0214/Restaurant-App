@@ -1,9 +1,6 @@
 "use strict"
 let React = require("react-native");
 let {StyleSheet} = React;
-const styleContent = {
-    actionColor: "blue"
-}
 
 module.exports = StyleSheet.create({
     container: {
@@ -40,5 +37,21 @@ module.exports = StyleSheet.create({
     toolbar: {
         backgroundColor: "#fff",
         height: 22,
-    }
+    },
+    center: {
+        textAlign: "center",
+    },
+    actionText: {
+        color: "#fff",
+        fontSize: 16,
+        textAlign: "center",
+    },
+    action: {
+        backgroundColor: "blue",
+        borderColor: "transparent",
+        borderWidth: 1,
+        paddingLeft: 16,
+        paddingTop: 14,
+        paddingBottom: 16,
+    },
 });
